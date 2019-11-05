@@ -1,11 +1,15 @@
 <template>
   <div id="near">
     <!-- <div id="amap-main"></div> -->
-    <div id="map"></div>
+    <!-- <div id="map"></div> -->
+    <div id="container"></div>
   </div>
 </template>
+<script src="//a.amap.com/jsapi_demos/static/china.js"></script>
 <script type="text/ecmascript-6">
 import { lazyAMapApiLoaderInstance } from "vue-amap";
+// import {data} from './points';
+import {a} from './data.js'
 export default {
   name: "near",
   data() {
@@ -70,79 +74,32 @@ export default {
           name: "甘肃省",
           center: [103.826447, 36.05956]
         }
-      ]
+      ],
     };
   },
+  created(){
+    //   this.$axios.get(`http://a.amap.com/jsapi_demos/static/china.js`).then( (res)=>{console.log(res.data)})
+    // console.log(a)
+  },
   mounted() {
-    let capitals = this.capitals;
     lazyAMapApiLoaderInstance.load().then(() => {
-      //地图圆点
-      var map = new AMap.Map("map", {
-        // viewMode: '3D',
-        zoom: 4,
-        center: [108, 34]
+      var map = new AMap.Map("container", {
+        zoom: 11, //级别
+        center: [118.793425,32.040599], //中心点坐标
+        viewMode: "3D" //使用3D视图
       });
-      for (var i = 0; i < capitals.length; i += 1) {
-        var center = capitals[i].center;
-        var circleMarker = new AMap.CircleMarker({
-          center: center,
-          radius: 10 + Math.random() * 10, //3D视图下，CircleMarker半径不要超过64px
-          strokeColor: "white",
-          strokeWeight: 2,
-          strokeOpacity: 0.5,
-          fillColor: "rgba(0,0,255,1)",
-          fillOpacity: 0.5,
-          zIndex: 10,
-          bubble: true,
-          cursor: "pointer",
-          clickable: true
-        });
-        circleMarker.setMap(map);
-      }
+
+      var infoWindow = new AMap.InfoWindow({
+        //创建信息窗体
+        isCustom: true, //使用自定义窗体
+        content: "<div>信息窗体123</div>", //信息窗体的内容可以是任意html片段
+        offset: new AMap.Pixel(16, -45)
+      });
+      var onMarkerClick = function(e) {
+        infoWindow.open(map, e.target.getPosition()); //打开信息窗体
+        //e.target就是被点击的Marker
+      };
     });
-
-    // 覆盖物1
-    var polyline1 = new AMap.Polyline({
-      path: [
-        new AMap.LngLat("116.368904", "39.913423"),
-        new AMap.LngLat("116.382122", "39.901176")
-      ]
-    });
-    // 覆盖物2
-    var polyline2 = new AMap.Polyline({
-      path: [
-        new AMap.LngLat("116.387271", "39.912501"),
-        new AMap.LngLat("116.398258", "39.904600")
-      ]
-    });
-    // 创建覆盖物群组，传入覆盖物组成的数组
-    var overlayGroup = new AMap.OverlayGroup([polyline1, polyline2]);
-
-    // 对此覆盖物群组设置同一属性
-    overlayGroup.setOptions({
-      strokeColor: "red",
-      strokeWeight: 5
-    });
-
-    // 统一添加到地图实例上
-    map.add(overlayGroup);
-
-    // 创建 geoJSON 实例
-    var geoJson = new AMap.GeoJSON({
-      geoJSON: JSON.parse(geoJsonData), // GeoJSON对象
-      getPolygon: function(geojson, lnglats) {
-        //还可以自定义getMarker和getPolyline
-
-        return new AMap.Polygon({
-          path: lnglats,
-          fillOpacity: 0.8,
-          strokeColor: "white",
-          fillColor: "red"
-        });
-      }
-    });
-
-    map.add(geoJson);
   }
 };
 </script>
@@ -152,6 +109,10 @@ export default {
   height: 300px;
 }
 #map {
+  width: 100%;
+  height: 600px;
+}
+#container {
   width: 100%;
   height: 600px;
 }
